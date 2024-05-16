@@ -1,0 +1,109 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
+
+// Define the Option structure
+struct Option {
+    string text;
+};
+
+// Define the Question structure
+struct Question {
+    string text;
+    vector<Option> options;
+};
+
+// Define the Survey structure
+struct Survey {
+    string title;
+    vector<Question> questions;
+};
+
+// Function to create a new survey
+Survey createSurvey() {
+    Survey survey;
+    cout << "Enter survey title: ";
+    getline(cin, survey.title);
+    return survey;
+}
+
+// Function to add a question to a survey
+void addQuestion(Survey& survey) {
+    Question question;
+    cout << "Enter question text: ";
+    getline(cin, question.text);
+
+    char choice;
+    do {
+        Option option;
+        cout << "Enter option text (or enter 'done' to finish): ";
+        getline(cin, option.text);
+        if (option.text != "done") {
+            question.options.push_back(option);
+            cout << "Option added.\n";
+        }
+    } while (question.options.empty() || question.options.back().text != "done");
+
+    survey.questions.push_back(question);
+    cout << "Question added to the survey.\n";
+}
+
+// Function to display a survey
+void displaySurvey(const Survey& survey) {
+    cout << "Survey Title: " << survey.title << endl;
+    cout << "Questions:\n";
+    for (const auto& question : survey.questions) {
+        cout << "- " << question.text << endl;
+        cout << "  Options:\n";
+        for (const auto& option : question.options) {
+            cout << "  - " << option.text << endl;
+        }
+    }
+}
+
+int main() {
+    Survey survey;
+
+    // Main menu loop
+    while (true) {
+        cout << "\nMenu:\n";
+        cout << "1. Create Survey\n";
+        cout << "2. Add Question\n";
+        cout << "3. Display Survey\n";
+        cout << "4. Exit\n";
+        cout << "Choose an option: ";
+
+        int choice;
+        cin >> choice;
+        cin.ignore();  // Ignore the newline character in the input buffer
+
+        switch (choice) {
+            case 1:
+                survey = createSurvey();
+                break;
+            case 2:
+                if (survey.title.empty()) {
+                    cout << "Please create a survey first.\n";
+                } else {
+                    addQuestion(survey);
+                }
+                break;
+            case 3:
+                if (survey.title.empty()) {
+                    cout << "No survey available.\n";
+                } else {
+                    displaySurvey(survey);
+                }
+                break;
+            case 4:
+                cout << "Exiting program.\n";
+                return 0;
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    }
+
+    return 0;
+}
