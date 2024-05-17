@@ -4,22 +4,28 @@
 
 using namespace std;
 
-// Define the Option structure
+// Define the Option structure representing an option for a survey question.
 struct Option {
     string text;
 };
 
-// Define the Question structure
+// Define the Question structure representing a question within a survey.
 struct Question {
     string text;
     vector<Option> options;
 };
 
-// Define the Survey structure
+// Define the Survey structure representing a survey.
 struct Survey {
     string title;
     vector<Question> questions;
 };
+
+// Function prototypes
+Survey createSurvey();
+void addQuestion(Survey& survey);
+void displaySurvey(const Survey& survey);
+void deleteQuestion(Survey& survey);
 
 // Function to create a new survey
 Survey createSurvey() {
@@ -31,11 +37,19 @@ Survey createSurvey() {
 
 // Function to add a question to a survey
 void addQuestion(Survey& survey) {
+    // Check if a survey exists
+    if (survey.title.empty()) {
+        cout << "Please create a survey first.\n";
+        return;
+    }
+
     Question question;
     cout << "Enter question text: ";
     getline(cin, question.text);
 
+    // Loop to add options to the question
     char choice;
+    bool doneAddingOptions = false; // Flag variable to indicate when to stop adding options
     do {
         Option option;
         cout << "Enter option text (or enter 'done' to finish): ";
@@ -43,8 +57,10 @@ void addQuestion(Survey& survey) {
         if (option.text != "done") {
             question.options.push_back(option);
             cout << "Option added.\n";
+        } else {
+            doneAddingOptions = true; // Set the flag to true when 'done' is entered
         }
-    } while (question.options.empty() || question.options.back().text != "done");
+    } while (!doneAddingOptions);
 
     survey.questions.push_back(question);
     cout << "Question added to the survey.\n";
@@ -52,6 +68,12 @@ void addQuestion(Survey& survey) {
 
 // Function to display a survey
 void displaySurvey(const Survey& survey) {
+    // Check if a survey exists
+    if (survey.title.empty()) {
+        cout << "No survey available.\n";
+        return;
+    }
+
     cout << "Survey Title: " << survey.title << endl;
     cout << "Questions:\n";
     for (const auto& question : survey.questions) {
@@ -63,6 +85,36 @@ void displaySurvey(const Survey& survey) {
     }
 }
 
+// Function to delete a question from a survey
+void deleteQuestion(Survey& survey) {
+    // Check if questions exist in the survey
+    if (survey.questions.empty()) {
+        cout << "No questions available to delete.\n";
+        return;
+    }
+
+    cout << "Select the question to delete:\n";
+    // Display the list of questions with indices
+    for (size_t i = 0; i < survey.questions.size(); ++i) {
+        cout << i + 1 << ". " << survey.questions[i].text << endl;
+    }
+
+    int choice;
+    cout << "Enter the number of the question to delete: ";
+    cin >> choice;
+    cin.ignore(); // Ignore the newline character in the input buffer
+
+    // Check if the entered index is valid
+    if (choice >= 1 && choice <= survey.questions.size()) {
+        // Erase the selected question from the vector
+        survey.questions.erase(survey.questions.begin() + choice - 1);
+        cout << "Question deleted successfully.\n";
+    } else {
+        cout << "Invalid question number.\n";
+    }
+}
+
+// Main function containing the menu for interacting with the survey management system.
 int main() {
     Survey survey;
 
@@ -72,32 +124,30 @@ int main() {
         cout << "1. Create Survey\n";
         cout << "2. Add Question\n";
         cout << "3. Display Survey\n";
-        cout << "4. Exit\n";
+        cout << "4. Delete Question\n";
+        cout << "5. Exit\n";
         cout << "Choose an option: ";
 
+        // Get user choice
         int choice;
         cin >> choice;
         cin.ignore();  // Ignore the newline character in the input buffer
 
+        // Perform actions based on user choice
         switch (choice) {
             case 1:
                 survey = createSurvey();
                 break;
             case 2:
-                if (survey.title.empty()) {
-                    cout << "Please create a survey first.\n";
-                } else {
-                    addQuestion(survey);
-                }
+                addQuestion(survey);
                 break;
             case 3:
-                if (survey.title.empty()) {
-                    cout << "No survey available.\n";
-                } else {
-                    displaySurvey(survey);
-                }
+                displaySurvey(survey);
                 break;
             case 4:
+                deleteQuestion(survey);
+                break;
+            case 5:
                 cout << "Exiting program.\n";
                 return 0;
             default:
